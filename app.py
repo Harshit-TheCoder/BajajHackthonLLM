@@ -35,6 +35,14 @@ for file in os.listdir(DOCS_FOLDER):
         loader = PyPDFLoader(pdf_path)
         documents.extend(loader.load())
 
+DOCS_FOLDER = "documents/Bajaj"
+documents = []
+for file in os.listdir(DOCS_FOLDER):
+    if file.endswith(".pdf"):
+        pdf_path = os.path.join(DOCS_FOLDER, file)
+        loader = PyPDFLoader(pdf_path)
+        documents.extend(loader.load())
+
 # Split text
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=5000, chunk_overlap=500)
 splits = text_splitter.split_documents(documents)
