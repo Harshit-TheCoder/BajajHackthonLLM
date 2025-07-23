@@ -4,6 +4,7 @@ from LLMS.LIC import conversational_rag_chain as lic_rag_chain
 # from LLMS.KOTAK import conversational_rag_chain as kotak_rag_chain
 from LLMS.StarHealth import conversational_rag_chain as starhealth_rag_chain
 from LLMS.Bajaj import conversational_rag_chain as bajaj_rag_chain
+from textblob import TextBlob
 
 company_rag_chains = {
     "edelweiss" : edelweiss_rag_chain,
@@ -32,6 +33,7 @@ while True:
     if len(target_chain) > 0:
         while True:
             question = input("\nYou: ")
+            question = TextBlob(question).correct() ## corrected english 
             if question.lower() == "exit":
                 break
             final_response = []
@@ -43,7 +45,7 @@ while True:
                 final_response.append(response)
             
             print("Assistant:", response['answer'])
-            print("\nWould you like to ask questions related to a specific company? or exit? Then Type 'exit' ")
+            print("\nWould you like to ask questions related to a specific company? or exit? Then Type 'exit' else enter the question. ")
     else:
         while True:
             question = input("\nYou: ")
@@ -55,5 +57,5 @@ while True:
             )
             print("Assistant:", response['answer'])
 
-        print("\nWould you like to ask questions for another company or for all companies in general or exit? Then Type 'exit' ")
+        print("\nWould you like to ask questions for another company or for all companies in general or exit? Then Type 'exit' else enter the question ")
 
