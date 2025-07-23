@@ -16,8 +16,6 @@ from dotenv import load_dotenv
 load_dotenv()
 os.environ['HF_TOKEN'] = os.getenv("HF_TOKEN")
 
-# Settings
-
 SESSION_ID = "default_session"
 
 # Load LLM
@@ -28,13 +26,15 @@ llm = ChatGroq(groq_api_key=GROQ_API_KEY, model_name="Gemma2-9b-It")
 embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 
 # Load and split documents
-DOCS_FOLDER = "documents/StarHealth"
+DOCS_FOLDER = "documents/KOTAK"
 documents = []
-for file in os.listdir(DOCS_FOLDER):
-    if file.endswith(".pdf"):
-        pdf_path = os.path.join(DOCS_FOLDER, file)
-        loader = PyPDFLoader(pdf_path)
-        documents.extend(loader.load())
+
+for root, dirs, files in os.walk(DOCS_FOLDER):
+    for file in files:
+        if file.endswith(".pdf"):
+            pdf_path = os.path.join(root, file)
+            loader = PyPDFLoader(pdf_path)
+            documents.extend(loader.load())
 
 
 # Split text
@@ -64,7 +64,7 @@ system_prompt = (
     "Use the following pieces of retrieved context to answer "
     "the question. If you don't know the answer, say that you "
     "don't know. Use three sentences maximum and keep the "
-    "answer concise.\n\n{context}. ANSWER IN JSON FORMAT"
+    "answer concise.\n\n{context}"
 )
 qa_prompt = ChatPromptTemplate.from_messages([
     ("system", system_prompt),
