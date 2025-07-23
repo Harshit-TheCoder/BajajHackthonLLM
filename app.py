@@ -1,109 +1,59 @@
-import os
-from langchain.chains import create_history_aware_retriever, create_retrieval_chain
-from langchain.chains.combine_documents import create_stuff_documents_chain
-from langchain_community.chat_message_histories import ChatMessageHistory
-from langchain_core.chat_history import BaseChatMessageHistory
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_groq import ChatGroq
-from langchain_core.runnables.history import RunnableWithMessageHistory
-from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.document_loaders import PyPDFLoader
-from langchain_chroma import Chroma
-from dotenv import load_dotenv
+from LLMS.Edelweiss import conversational_rag_chain as edelweiss_rag_chain
+from LLMS.HDFC import conversational_rag_chain as hdfc_rag_chain
+from LLMS.LIC import conversational_rag_chain as lic_rag_chain
+# from LLMS.KOTAK import conversational_rag_chain as kotak_rag_chain
+from LLMS.StarHealth import conversational_rag_chain as starhealth_rag_chain
+from LLMS.Bajaj import conversational_rag_chain as bajaj_rag_chain
 
-# Load environment variables
-load_dotenv()
-os.environ['HF_TOKEN'] = os.getenv("HF_TOKEN")
+company_rag_chains = {
+    "edelweiss" : edelweiss_rag_chain,
+    "hdfc" : hdfc_rag_chain,
+    "lic" : lic_rag_chain,
+    # "kotak" : kotak_rag_chain,
+    "starhealth" : starhealth_rag_chain,
+    "bajaj" : bajaj_rag_chain
+}
 
-# Settings
-DOCS_FOLDER = "documents"
-SESSION_ID = "default_session"
+def get_target_chain():
+    company_input = input("Enter the insurance company (Edelweiss, HDFC, LIC, KOTAK, StarHealth, Bajaj or 'any') ").strip().lower()
+    target_chain = []
+    if company_input == "any":
+        for company_key in company_rag_chains:
+            target_chain.append(company_rag_chains[company_key])
+    else:
+        target_chain.append(company_rag_chains[company_input])
+    return target_chain
+        
 
-# Load LLM
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")  # Add your key in .env as GROQ_API_KEY
-llm = ChatGroq(groq_api_key=GROQ_API_KEY, model_name="Gemma2-9b-It")
-
-# Load embeddings
-embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
-
-# Load and split documents
-documents = []
-for file in os.listdir(DOCS_FOLDER):
-    if file.endswith(".pdf"):
-        pdf_path = os.path.join(DOCS_FOLDER, file)
-        loader = PyPDFLoader(pdf_path)
-        documents.extend(loader.load())
-
-DOCS_FOLDER = "documents/Bajaj"
-documents = []
-for file in os.listdir(DOCS_FOLDER):
-    if file.endswith(".pdf"):
-        pdf_path = os.path.join(DOCS_FOLDER, file)
-        loader = PyPDFLoader(pdf_path)
-        documents.extend(loader.load())
-
-# Split text
-text_splitter = RecursiveCharacterTextSplitter(chunk_size=5000, chunk_overlap=500)
-splits = text_splitter.split_documents(documents)
-
-# Create vector store
-vectorstore = Chroma.from_documents(documents=splits, embedding=embeddings)
-retriever = vectorstore.as_retriever()
-
-# Create retriever chain
-contextualize_q_system_prompt = (
-    "Given a chat history and the latest user question which might reference context in the chat history, "
-    "formulate a standalone question which can be understood without the chat history. Do NOT answer the question, "
-    "just reformulate it if needed and otherwise return it as is."
-)
-contextualize_q_prompt = ChatPromptTemplate.from_messages([
-    ("system", contextualize_q_system_prompt),
-    MessagesPlaceholder("chat_history"),
-    ("human", "{input}")
-])
-history_aware_retriever = create_history_aware_retriever(llm, retriever, contextualize_q_prompt)
-
-# Answer question
-system_prompt = (
-    "You are an assistant for question-answering tasks. "
-    "Use the following pieces of retrieved context to answer "
-    "the question. If you don't know the answer, say that you "
-    "don't know. Use three sentences maximum and keep the "
-    "answer concise.\n\n{context}"
-)
-qa_prompt = ChatPromptTemplate.from_messages([
-    ("system", system_prompt),
-    MessagesPlaceholder("chat_history"),
-    ("human", "{input}")
-])
-question_answer_chain = create_stuff_documents_chain(llm, qa_prompt)
-rag_chain = create_retrieval_chain(history_aware_retriever, question_answer_chain)
-
-# Setup chat history
-session_store = {}
-
-def get_session_history(session_id: str) -> BaseChatMessageHistory:
-    if session_id not in session_store:
-        session_store[session_id] = ChatMessageHistory()
-    return session_store[session_id]
-
-conversational_rag_chain = RunnableWithMessageHistory(
-    rag_chain,
-    get_session_history,
-    input_messages_key="input",
-    history_messages_key="chat_history",
-    output_messages_key="answer"
-)
-
-# CLI Interface
-print("Welcome to PDF RAG Q&A. Ask questions (type 'exit' to quit).")
+print("Welcome to Insurance Q&A Chatbot")
 while True:
-    question = input("\nYou: ")
-    if question.lower() == "exit":
-        break
-    response = conversational_rag_chain.invoke(
-        {"input": question},
-        config={"configurable": {"session_id": SESSION_ID}}
-    )
-    print("Assistant:", response['answer'])
+    target_chain = get_target_chain()
+    SESSION_ID = "default_session"
+    if len(target_chain) > 0:
+        while True:
+            question = input("\nYou: ")
+            if question.lower() == "exit":
+                break
+            final_response = []
+            for target in target_chain:
+                response = target.invoke(
+                    {"input": question},
+                    config={"configurable": {"session_id": SESSION_ID}}
+                )
+                final_response.append(response)
+            
+            print("Assistant:", response['answer'])
+            print("\nWould you like to ask questions related to a specific company? or exit? Then Type 'exit' ")
+    else:
+        while True:
+            question = input("\nYou: ")
+            if question.lower() == "exit":
+                break
+            response = target_chain.invoke(
+                {"input": question},
+                config={"configurable": {"session_id": SESSION_ID}}
+            )
+            print("Assistant:", response['answer'])
+
+        print("\nWould you like to ask questions for another company or for all companies in general or exit? Then Type 'exit' ")
+
