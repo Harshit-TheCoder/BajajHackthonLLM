@@ -49,9 +49,12 @@ def get_target_chain():
 
 def translate_text(text, src_lang, dest_lang):
     try:
+        if not text or len(text) > 4900:
+            print("Translation skipped: text too long or empty.")
+            return text
         return GoogleTranslator(source=src_lang, target=dest_lang).translate(text)
     except Exception as e:
-        print("Translation error:", e)
+        print("Translation error:", text, "-->", e)
         return text
         
 def get_user_language():
@@ -70,7 +73,7 @@ def is_abusive(message):
     return False
 
 def is_vague(message):
-    message_lower = message.lower()
+    message_lower = str(message).lower()
 
     # Word match
     for word in vague_words:
@@ -85,7 +88,7 @@ def is_vague(message):
     return False
 
 print("Welcome to Insurance Q&A Chatbot")
-lang = get_user_language()
+# lang = get_user_language()
 
 while True:
     target_chain = get_target_chain()
@@ -93,10 +96,10 @@ while True:
     if len(target_chain) > 0:
         while True:
             question = input("\nYou: ")
-            question = TextBlob(question).correct() ## corrected english 
-            if question.lower() == "exit":
+            # question = str(TextBlob(question).correct()) ## corrected english 
+            if question.strip().lower() == "exit":
                 break
-            question = translate_text(question, src_lang=lang, dest_lang="english")
+            # question = translate_text(question, src_lang=lang, dest_lang="english")
             if is_abusive(question):
                 print("Assistant: Please be respectful. Let's keep this conversation helpful and professional.")
                 continue
@@ -111,7 +114,7 @@ while True:
                     {"input": question},
                     config={"configurable": {"session_id": SESSION_ID}}
                 )
-                response = translate_text(response, src_lang="english", dest_lang=lang)
+                # response = translate_text(response, src_lang="english", dest_lang=lang)
                 final_response.append(response)
             
             print("Assistant:", response['answer'])
@@ -119,10 +122,10 @@ while True:
     else:
         while True:
             question = input("\nYou: ")
-            question = TextBlob(question).correct() ## corrected english 
-            if question.lower() == "exit":
+            # question = TextBlob(question).correct() ## corrected english 
+            if question.strip().lower() == "exit":
                 break
-            question = translate_text(question, src_lang=lang, dest_lang="english")
+            # question = translate_text(question, src_lang=lang, dest_lang="english")
             if is_abusive(question):
                 print("Assistant: Please be respectful. Let's keep this conversation helpful and professional.")
                 continue
@@ -134,7 +137,7 @@ while True:
                 {"input": question},
                 config={"configurable": {"session_id": SESSION_ID}}
             )
-            response = translate_text(response, src_lang="english", dest_lang=lang)
+            # response = translate_text(response, src_lang="english", dest_lang=lang)
             print("Assistant:", response['answer'])
 
         print("\nWould you like to exit? Then Type 'exit' else enter the question in selected language")

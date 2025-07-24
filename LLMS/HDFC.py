@@ -9,7 +9,8 @@ from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import PyPDFLoader
-from langchain_chroma import Chroma
+# from langchain_chroma import Chroma
+from langchain_community.vectorstores import Chroma
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -25,24 +26,26 @@ llm = ChatGroq(groq_api_key=GROQ_API_KEY, model_name="Gemma2-9b-It")
 # Load embeddings
 embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 
-# Load and split documents
-DOCS_FOLDER = "documents/HDFC"
-documents = []
-
-for root, dirs, files in os.walk(DOCS_FOLDER):
-    for file in files:
-        if file.endswith(".pdf"):
-            pdf_path = os.path.join(root, file)
-            loader = PyPDFLoader(pdf_path)
-            documents.extend(loader.load())
-
-
-# Split text
-text_splitter = RecursiveCharacterTextSplitter(chunk_size=5000, chunk_overlap=500)
-splits = text_splitter.split_documents(documents)
-
 # Create vector store
-vectorstore = Chroma.from_documents(documents=splits, embedding=embeddings)
+PERSIST_DIR = "HDFC_Embeddings"
+
+if os.path.exists(PERSIST_DIR):
+    vectorstore = Chroma(persist_directory=PERSIST_DIR, embedding_function=embeddings)
+else:
+    # Load and split documents
+    DOCS_FOLDER = "documents/HDFC"
+    documents = []
+    for root, dirs, files in os.walk(DOCS_FOLDER):
+        for file in files:
+            if file.endswith(".pdf"):
+                pdf_path = os.path.join(root, file)
+                loader = PyPDFLoader(pdf_path)
+                documents.extend(loader.load())
+    # Split text
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=5000, chunk_overlap=500)
+    splits = text_splitter.split_documents(documents)
+    vectorstore = Chroma.from_documents(documents=splits, embedding=embeddings, persist_directory=PERSIST_DIR)
+    vectorstore.persist()
 retriever = vectorstore.as_retriever()
 
 # Create retriever chain
