@@ -7,11 +7,14 @@ from LLMS.Bajaj import conversational_rag_chain as bajaj_rag_chain
 from textblob import TextBlob
 from deep_translator import GoogleTranslator
 from cuss_words import abusive_words
-from googleapiclient import discovery
-import json
-from dotenv import load_dotenv
-load_dotenv()
-import os
+from vague_sentences import vague_words
+from vague_sentences import vague_phrases
+import re
+# from googleapiclient import discovery
+# import json
+# from dotenv import load_dotenv
+# load_dotenv()
+# import os
 
 company_rag_chains = {
     "edelweiss" : edelweiss_rag_chain,
@@ -22,15 +25,15 @@ company_rag_chains = {
     "bajaj" : bajaj_rag_chain
 }
 
-API_KEY = os.getenv("PERSPECTIVE_AI_API_KEY")
+# API_KEY = os.getenv("PERSPECTIVE_AI_API_KEY")
 
-client = discovery.build(
-    "commentanalyzer",
-    "v1alpha1",
-    developerKey=API_KEY,
-    discoveryServiceUrl="https://commentanalyzer.googleapis.com/$discovery/rest?version=v1alpha1",
-    static_discovery=False,
-)
+# client = discovery.build(
+#     "commentanalyzer",
+#     "v1alpha1",
+#     developerKey=API_KEY,
+#     discoveryServiceUrl="https://commentanalyzer.googleapis.com/$discovery/rest?version=v1alpha1",
+#     static_discovery=False,
+# )
 
 def get_target_chain():
     company_input = input("Enter the insurance company (Edelweiss, HDFC, LIC, KOTAK, StarHealth, Bajaj or 'any') ").strip().lower()
@@ -58,20 +61,28 @@ def get_user_language():
     return lang
 
 def is_abusive(message):
-    try:
-        analyze_request = {
-            'comment': {'text': message},
-            'languages': ['en'],
-            'requestedAttributes': {'TOXICITY': {}, 'INSULT': {}, 'PROFANITY': {}}
-        }
-        response = client.comments().analyze(body=analyze_request).execute()
-        toxicity = response['attributeScores']['TOXICITY']['summaryScore']['value']
-        insult = response['attributeScores']['INSULT']['summaryScore']['value']
-        profanity = response['attributeScores']['PROFANITY']['summaryScore']['value']
-        return max(toxicity, insult, profanity) > 0.6
-    except Exception as e:
-        print("Perspective API error:", e)
-        return False
+    message_words = message.lower().split()
+
+    # Check if any abusive word is in the message
+    for word in message_words:
+        if word in abusive_words:
+            return True
+    return False
+
+def is_vague(message):
+    message_lower = message.lower()
+
+    # Word match
+    for word in vague_words:
+        if re.search(r'\b' + re.escape(word) + r'\b', message_lower):
+            return True
+
+    # Phrase match
+    for pattern in vague_phrases:
+        if re.search(pattern, message_lower):
+            return True
+
+    return False
 
 print("Welcome to Insurance Q&A Chatbot")
 lang = get_user_language()
@@ -88,6 +99,10 @@ while True:
             question = translate_text(question, src_lang=lang, dest_lang="english")
             if is_abusive(question):
                 print("Assistant: Please be respectful. Let's keep this conversation helpful and professional.")
+                continue
+
+            if is_vague(question):
+                print("It seems your question is a bit vague or lacking in context. Can you describe your question properly")
                 continue
 
             final_response = []
@@ -108,6 +123,13 @@ while True:
             if question.lower() == "exit":
                 break
             question = translate_text(question, src_lang=lang, dest_lang="english")
+            if is_abusive(question):
+                print("Assistant: Please be respectful. Let's keep this conversation helpful and professional.")
+                continue
+
+            if is_vague(question):
+                print("It seems your question is a bit vague or lacking in context. Can you describe your question properly")
+                continue
             response = target_chain.invoke(
                 {"input": question},
                 config={"configurable": {"session_id": SESSION_ID}}
