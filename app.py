@@ -1,16 +1,17 @@
 from LLMS.Edelweiss import conversational_rag_chain as edelweiss_rag_chain
 from LLMS.HDFC import conversational_rag_chain as hdfc_rag_chain
 from LLMS.LIC import conversational_rag_chain as lic_rag_chain
-# from LLMS.KOTAK import conversational_rag_chain as kotak_rag_chain
+from LLMS.KOTAK import conversational_rag_chain as kotak_rag_chain
 from LLMS.StarHealth import conversational_rag_chain as starhealth_rag_chain
 from LLMS.Bajaj import conversational_rag_chain as bajaj_rag_chain
 from textblob import TextBlob
+from deep_translator import GoogleTranslator
 
 company_rag_chains = {
     "edelweiss" : edelweiss_rag_chain,
     "hdfc" : hdfc_rag_chain,
     "lic" : lic_rag_chain,
-    # "kotak" : kotak_rag_chain,
+    "kotak" : kotak_rag_chain,
     "starhealth" : starhealth_rag_chain,
     "bajaj" : bajaj_rag_chain
 }
@@ -49,6 +50,8 @@ while True:
     else:
         while True:
             question = input("\nYou: ")
+            question = TextBlob(question).correct() ## corrected english 
+
             if question.lower() == "exit":
                 break
             response = target_chain.invoke(
