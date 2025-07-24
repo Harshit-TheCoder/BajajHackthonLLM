@@ -8,9 +8,8 @@ from langchain_groq import ChatGroq
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.document_loaders import PyPDFLoader
-from langchain_chroma import Chroma
-from langchain_community.document_loaders import PDFMinerLoader
+from langchain_community.document_loaders import PyPDFLoader, PyMuPDFLoader, PDFMinerLoader
+from langchain_chroma import Chroma 
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -34,7 +33,7 @@ for root, dirs, files in os.walk(DOCS_FOLDER):
     for file in files:
         if file.endswith(".pdf"):
             pdf_path = os.path.join(root, file)
-            loader = PyPDFLoader(pdf_path)
+            loader = PyMuPDFLoader(pdf_path)
             documents.extend(loader.load())
 
 
@@ -92,13 +91,13 @@ conversational_rag_chain = RunnableWithMessageHistory(
 )
 
 # CLI Interface
-print("Welcome to PDF RAG Q&A. Ask questions (type 'exit' to quit).")
-while True:
-    question = input("\nYou: ")
-    if question.lower() == "exit":
-        break
-    response = conversational_rag_chain.invoke(
-        {"input": question},
-        config={"configurable": {"session_id": SESSION_ID}}
-    )
-    print("Assistant:", response['answer'])
+# print("Welcome to PDF RAG Q&A. Ask questions (type 'exit' to quit).")
+# while True:
+#     question = input("\nYou: ")
+#     if question.lower() == "exit":
+#         break
+#     response = conversational_rag_chain.invoke(
+#         {"input": question},
+#         config={"configurable": {"session_id": SESSION_ID}}
+#     )
+#     print("Assistant:", response['answer'])
