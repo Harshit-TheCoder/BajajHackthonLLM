@@ -12,7 +12,7 @@ from langchain_community.document_loaders import PyPDFLoader
 # from langchain_chroma import Chroma
 from langchain_community.vectorstores import Chroma
 from dotenv import load_dotenv
-
+from PolicyNames.hdfc_policy_names import hdfc_policy
 # Load environment variables
 load_dotenv()
 os.environ['HF_TOKEN'] = os.getenv("HF_TOKEN")
@@ -50,7 +50,7 @@ retriever = vectorstore.as_retriever()
 
 # Create retriever chain
 contextualize_q_system_prompt = (
-    "Given a chat history and the latest user question which might reference context in the chat history, "
+    "Given a chat history and the latest user question which reference context in the chat history, "
     "formulate a standalone question which can be understood without the chat history. Do NOT answer the question, "
     "just reformulate it if needed and otherwise return it as is."
 )
@@ -64,10 +64,10 @@ history_aware_retriever = create_history_aware_retriever(llm, retriever, context
 # Answer question
 system_prompt = (
     "You are an assistant for question-answering tasks. "
-    "Use the following pieces of retrieved context to answer "
-    "the question. If you don't know the answer, say that you "
-    "don't know. Use three sentences maximum and keep the "
-    "answer concise.\n\n{context}. ANSWER IN JSON FORMAT ONLY."
+    "Use the following pieces of retrieved context to answer the question."
+    "If you don't know the answer, say that you don't know"
+    "you are trained with these policies {hdfc_policy}"
+    "\n\n{context}. ANSWER IN JSON FORMAT ONLY."
 )
 qa_prompt = ChatPromptTemplate.from_messages([
     ("system", system_prompt),
@@ -94,13 +94,13 @@ conversational_rag_chain = RunnableWithMessageHistory(
 )
 
 # # CLI Interface
-# print("Welcome to PDF RAG Q&A. Ask questions (type 'exit' to quit).")
-# while True:
-#     question = input("\nYou: ")
-#     if question.lower() == "exit":
-#         break
-#     response = conversational_rag_chain.invoke(
-#         {"input": question},
-#         config={"configurable": {"session_id": SESSION_ID}}
-#     )
-#     print("Assistant:", response['answer'])
+print("Welcome to PDF RAG Q&A. Ask questions (type 'exit' to quit).")
+while True:
+    question = input("\nYou: ")
+    if question.lower() == "exit":
+        break
+    response = conversational_rag_chain.invoke(
+        {"input": question},
+        config={"configurable": {"session_id": SESSION_ID}}
+    )
+    print("Assistant:", response['answer'])
