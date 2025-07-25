@@ -67,8 +67,7 @@ system_prompt = (
     "You are an assistant for question-answering tasks. "
     "Use the following pieces of retrieved context to answer "
     "the question. If you don't know the answer, say that you "
-    "don't know. Use three sentences maximum and keep the "
-    "answer concise.\n\n{context}. ANSWER IN JSON FORMAT"
+    "don't know. \n\n{context}. ANSWER IN JSON FORMAT ONLY."
 )
 qa_prompt = ChatPromptTemplate.from_messages([
     ("system", system_prompt),
