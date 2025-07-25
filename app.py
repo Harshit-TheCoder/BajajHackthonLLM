@@ -88,7 +88,7 @@ def is_vague(message):
     return False
 
 print("Welcome to Insurance Q&A Chatbot")
-# lang = get_user_language()
+lang = get_user_language()
 
 while True:
     target_chain = get_target_chain()
@@ -118,7 +118,7 @@ while True:
                 final_response.append(response)
             
             print("Assistant:", response['answer'])
-            print("\nWould you like to exit? Then Type 'exit' else enter the question in selected language")
+            print("\nWould you like to exit or ask question for a specific company? Then Type 'exit' else enter the question in selected language")
     else:
         while True:
             question = input("\nYou: ")
@@ -140,5 +140,8 @@ while True:
             # response = translate_text(response, src_lang="english", dest_lang=lang)
             print("Assistant:", response['answer'])
 
-        print("\nWould you like to exit? Then Type 'exit' else enter the question in selected language")
+        print("\nWould you like to exit or change company? Then Type 'exit' else enter the question in selected language")
+    
+    choice = input("\nWould you like to exit?yes/no?")
+    if(choice == "yes"): break
 
