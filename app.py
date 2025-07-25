@@ -10,11 +10,18 @@ from cuss_words import abusive_words
 from vague_sentences import vague_words
 from vague_sentences import vague_phrases
 import re
+import google.generativeai as genai
+from PolicyNames.bajaj_policy_names import bajaj_policy
+from PolicyNames.edelweiss_policy_names import edelweiss_policy
+from PolicyNames.hdfc_policy_names import hdfc_policy
+from PolicyNames.kotak_policy_names import kotak_policy
+from PolicyNames.lic_policy_names import lic_policy
+from PolicyNames.starhealth_policy_names import starhealth_policy
 # from googleapiclient import discovery
 # import json
-# from dotenv import load_dotenv
-# load_dotenv()
-# import os
+from dotenv import load_dotenv
+load_dotenv()
+import os
 
 company_rag_chains = {
     "edelweiss" : edelweiss_rag_chain,
@@ -34,6 +41,11 @@ company_rag_chains = {
 #     discoveryServiceUrl="https://commentanalyzer.googleapis.com/$discovery/rest?version=v1alpha1",
 #     static_discovery=False,
 # )
+API_KEY = os.getenv("GEMINI_API_KEY")
+genai.configure(api_key=API_KEY)
+model = genai.GenerativeModel("gemini-2.5-flash")
+# response = model.generate_content("Explain insurance claim process for a knee surgery")
+
 
 def get_target_chain():
     company_input = input("Enter the insurance company (Edelweiss, HDFC, LIC, KOTAK, StarHealth, Bajaj or 'any') ").strip().lower()
@@ -108,6 +120,24 @@ while True:
                 print("It seems your question is a bit vague or lacking in context. Can you describe your question properly")
                 continue
 
+            prompt = f"""
+                You are an insurance query normalizer.
+                Your task is to take a raw insurance query from a user and turn it into a clear, full English question with structured context.
+                Raw input: "{question}"
+                Return a **rephrased natural language question** that includes:
+                - Age (if available)
+                - Gender (if available)
+                - Medical procedure
+                - Location
+                - Policy duration (if mentioned)
+                - Context (e.g., whether asking about coverage, claim approval, or payout)
+                Make sure the result is a single, complete sentence or paragraph understandable by a retrieval/LLM system.
+            """
+
+            response = model.generate_content(prompt)
+            question = response.text.strip()
+            print(question)
+
             final_response = []
             for target in target_chain:
                 response = target.invoke(
@@ -133,6 +163,25 @@ while True:
             if is_vague(question):
                 print("It seems your question is a bit vague or lacking in context. Can you describe your question properly")
                 continue
+
+            prompt = f"""
+                You are an insurance query normalizer.
+                Your task is to take a raw insurance query from a user and turn it into a clear, full English question with structured context.
+                Raw input: "{question}"
+                Return a **rephrased natural language question** that includes:
+                - Age (if available)
+                - Gender (if available)
+                - Medical procedure
+                - Location
+                - Policy duration (if mentioned)
+                - Context (e.g., whether asking about coverage, claim approval, or payout)
+                Make sure the result is a single, complete sentence or paragraph understandable by a retrieval/LLM system.
+            """
+
+            response = model.generate_content(prompt)
+            question = response.text.strip()
+            print(question)
+
             response = target_chain.invoke(
                 {"input": question},
                 config={"configurable": {"session_id": SESSION_ID}}
