@@ -50,6 +50,12 @@ company_policy_keys = [
 "bajaj_policy"
 ]
 
+hdfc_policy_string = "\n".join(f"- {p}" for p in hdfc_policy)
+edelweiss_policy_string = "\n".join(f"- {p}" for p in edelweiss_policy)
+bajaj_policy_string = "\n".join(f"- {p}" for p in bajaj_policy)
+lic_policy_string = "\n".join(f"- {p}" for p in lic_policy)
+kotak_policy_string = "\n".join(f"- {p}" for p in kotak_policy)
+starhealth_policy_string = "\n".join(f"- {p}" for p in starhealth_policy)
 # API_KEY = os.getenv("PERSPECTIVE_AI_API_KEY")
 
 # client = discovery.build(
@@ -146,14 +152,20 @@ while True:
                 print("Assistant: Please be respectful. Let's keep this conversation helpful and professional.")
                 continue
 
-            if is_vague(question):
-                print("It seems your question is a bit vague or lacking in context. Can you describe your question properly")
-                continue
+            # if is_vague(question):
+            #     print("It seems your question is a bit vague or lacking in context. Can you describe your question properly")
+            #     continue
 
             prompt = f"""
                 You are an insurance query normalizer.
                 Your task is to take a raw insurance query from a user and turn it into a clear, full English question with structured context.
                 Raw input: "{question}"
+                These are the policies covered by HDFC RAG LLM: "{hdfc_policy_string}"
+                These are the policies covered by Edelweiss RAG LLM: "{edelweiss_policy_string}"
+                These are the policies covered by Bajaj RAG LLM: "{bajaj_policy_string}"
+                These are the policies covered by KOTAK RAG LLM: "{kotak_policy_string}"
+                These are the policies covered by LIC RAG LLM: "{lic_policy_string}"
+                These are the policies covered by Star Health RAG LLM: "{starhealth_policy_string}"
                 Return a **rephrased natural language question** that includes:
                 - Age (if available)
                 - Gender (if available)
@@ -194,14 +206,20 @@ while True:
             if is_abusive(question):
                 print("Assistant: Please be respectful. Let's keep this conversation helpful and professional.")
                 continue
-            if is_vague(question):
-                print("It seems your question is a bit vague or lacking in context. Can you describe your question properly")
-                continue
+            # if is_vague(question):
+            #     print("It seems your question is a bit vague or lacking in context. Can you describe your question properly")
+            #     continue
 
             prompt = f"""
                 You are an insurance query normalizer.
                 Your task is to take a raw insurance query from a user and turn it into a clear, full English question with structured context.
                 Raw input: "{question}"
+                These are the policies covered by HDFC RAG LLM: "{hdfc_policy_string}"
+                These are the policies covered by Edelweiss RAG LLM: "{edelweiss_policy_string}"
+                These are the policies covered by Bajaj RAG LLM: "{bajaj_policy_string}"
+                These are the policies covered by KOTAK RAG LLM: "{kotak_policy_string}"
+                These are the policies covered by LIC RAG LLM: "{lic_policy_string}"
+                These are the policies covered by Star Health RAG LLM: "{starhealth_policy_string}"
                 Return a **rephrased natural language question** that includes:
                 - Age (if available)
                 - Gender (if available)
