@@ -9,3 +9,8 @@ langchain_text_splitters
 dotenv
 sentence-transformers
 pypdf
+pdfminer.six
+textblob
+deep-translator
+pymupdf
+google-api-python-client

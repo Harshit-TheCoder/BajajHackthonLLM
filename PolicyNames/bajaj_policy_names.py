@@ -1,1 +1,27 @@
-bajaj_policy = ['Arogya-Sanjeevani-Policy_Bajaj', 'Bajaj Allianz', 'bajaj waiver', 'Corona_Kavach_Policy_Wordings_Bajaj', 'Critical-Illness_Bajaj', 'Criti_Care_Bajaj', 'Extra_Care_Plus_Bajaj', 'Global-Personal-Guard-Policy(Individual)_Bajaj', 'global_health_care_bajaj', 'hdfc home insurance', 'Health-Care-SupremeBajaj', 'Health-Guard-CIS-print bajaj', 'Health-Infinity_Bajaj', 'Health_Ensure_Bajaj', 'Loan_Care_Bajaj', 'My_Health_Care_Plan1_Bajaj', 'M_CARE_Bajaj', 'Nidaan_Swasthya_Bima_Bajaj', 'Personal_Accident_Bajaj', 'Premium_Personal_Guard_Bajaj', 'Sankat_Mochan_Bajaj', 'Saral_Suraksha_Bima_Bajaj', 'Silver-Health_Bajaj', 'Star_Package_Bajaj', 'Tax-Gain_Bajaj']
+bajaj_policy = [
+    "Arogya Sanjeevani Policy Bajaj",
+    "Bajaj Allianz Policy",
+    "Bajaj Waiver Policy",
+    "Corona Kavach Policy Wordings Bajaj Policy",
+    "Critical Illness Bajaj Policy",
+    "Criti Care Bajaj Policy",
+    "Extra Care Plus Bajaj Policy",
+    "Global Personal Guard Policy (Individual) Bajaj Policy",
+    "Global Health Care Bajaj Policy",
+    "HDFC Home Insurance Policy",
+    "Health Care Supreme Bajaj Policy",
+    "Health Guard CIS Print Bajaj Policy",
+    "Health Infinity Bajaj Policy",
+    "Health Ensure Bajaj Policy",
+    "Loan Care Bajaj Policy",
+    "My Health Care Plan 1 Bajaj Policy",
+    "M Care Bajaj Policy",
+    "Nidaan Swasthya Bima Bajaj Policy",
+    "Personal Accident Bajaj Policy",
+    "Premium Personal Guard Bajaj Policy",
+    "Sankat Mochan Bajaj Policy",
+    "Saral Suraksha Bima Bajaj Policy",
+    "Silver Health Bajaj Policy",
+    "Star Package Bajaj Policy",
+    "Tax Gain Bajaj Policy"
+]

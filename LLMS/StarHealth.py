@@ -67,7 +67,7 @@ history_aware_retriever = create_history_aware_retriever(llm, retriever, context
 system_prompt = (
     "You are an assistant for question-answering tasks. "
     "Use the following pieces of retrieved context to answer the question."
-    "If you don't know the answer, say that you don't know"
+    "If you don't know the answer, display all the policy names you know and ask client to suggest the policy name."
     "you are trained with these policies {starhealth_policy}"
     "\n\n{context}. ANSWER IN JSON FORMAT ONLY."
 )

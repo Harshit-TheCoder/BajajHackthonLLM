@@ -65,7 +65,7 @@ history_aware_retriever = create_history_aware_retriever(llm, retriever, context
 system_prompt = (
     "You are an assistant for question-answering tasks. "
     "Use the following pieces of retrieved context to answer the question."
-    "If you don't know the answer, say that you don't know"
+    "If you don't know the answer, DISPLAY {hdfc_policy} and ASK THE CLIENT TO TELL THE POLICY NAME."
     "you are trained with these policies {hdfc_policy}"
     "\n\n{context}. ANSWER IN JSON FORMAT ONLY."
 )
@@ -100,7 +100,7 @@ while True:
     if question.lower() == "exit":
         break
     response = conversational_rag_chain.invoke(
-        {"input": question},
+        {"input": question, "hdfc_policy": "\n".join(f"- {p}" for p in hdfc_policy)},
         config={"configurable": {"session_id": SESSION_ID}}
     )
     print("Assistant:", response['answer'])

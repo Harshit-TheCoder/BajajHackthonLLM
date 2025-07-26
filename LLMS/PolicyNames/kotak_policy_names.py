@@ -1,0 +1,20 @@
+kotak_policy = [
+    "Health Maximiser",
+    "Kotak e-Term Plan",
+    "Kotak Saral Jeevan Bima",
+    "Kotak Term Plan",
+    "Kotak Gen2Gen Protect",
+    "Kotak Lifetime Income Plan",
+    "Kotak Assured Pension",
+    "Kotak Fortune Maximiser",
+    "Kotak Guaranteed Savings Plan",
+    "Kotak Wealth Optima Plan (Unit Linked Insurance Plan)",
+    "Kotak Assured Savings Plan",
+    "Kotak Guaranteed Fortune Builder",
+    "Kotak Invest Maxima",
+    "Kotak Platinum",
+    "Kotak Sampoorn Bima Micro Insurance Plan",
+    "Kotak Single Invest Advantage",
+    "Kotak SmartLife Plan",
+    "Kotak TULIP"
+]
