@@ -70,7 +70,7 @@ history_aware_retriever = create_history_aware_retriever(llm, retriever, context
 system_prompt = (
     "You are an assistant for question-answering tasks. "
     "Use the following pieces of retrieved context to answer the question."
-    "If you don't know the answer, display all the policy names you know and ask client to suggest the policy name."
+    "If you don't know the answer, SAY 'Sorry, but your question is vague. These are the policies I know about , say your question with one of these policies' and DISPLAY {bajaj_policy}."
     "you are trained with these policies {bajaj_policy}"
     "\n\n{context}. ANSWER IN JSON FORMAT ONLY."
 )
