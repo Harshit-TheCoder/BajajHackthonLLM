@@ -11,12 +11,12 @@ from vague_sentences import vague_words
 from vague_sentences import vague_phrases
 import re
 import google.generativeai as genai
-from PolicyNames.bajaj_policy_names import bajaj_policy
-from PolicyNames.edelweiss_policy_names import edelweiss_policy
-from PolicyNames.hdfc_policy_names import hdfc_policy
-from PolicyNames.kotak_policy_names import kotak_policy
-from PolicyNames.lic_policy_names import lic_policy
-from PolicyNames.starhealth_policy_names import starhealth_policy
+from LLMS.PolicyNames.bajaj_policy_names import bajaj_policy
+from LLMS.PolicyNames.edelweiss_policy_names import edelweiss_policy
+from LLMS.PolicyNames.hdfc_policy_names import hdfc_policy
+from LLMS.PolicyNames.kotak_policy_names import kotak_policy
+from LLMS.PolicyNames.lic_policy_names import lic_policy
+from LLMS.PolicyNames.starhealth_policy_names import starhealth_policy
 # from googleapiclient import discovery
 # import json
 from dotenv import load_dotenv
@@ -32,6 +32,24 @@ company_rag_chains = {
     "bajaj" : bajaj_rag_chain
 }
 
+company_policy_names = {
+    "edelweiss" : edelweiss_policy,
+    "hdfc" : hdfc_policy,
+    "lic" : lic_policy,
+    "kotak" : kotak_policy,
+    "starhealth" : starhealth_policy,
+    "bajaj" : bajaj_policy
+}
+
+company_policy_keys = [
+"edelweiss_policy",
+"hdfc_policy",
+"lic_policy",
+"kotak_policy",
+"starhealth_policy",
+"bajaj_policy"
+]
+
 # API_KEY = os.getenv("PERSPECTIVE_AI_API_KEY")
 
 # client = discovery.build(
@@ -46,10 +64,12 @@ genai.configure(api_key=API_KEY)
 model = genai.GenerativeModel("gemini-2.5-flash")
 # response = model.generate_content("Explain insurance claim process for a knee surgery")
 
-
+company_name = ""
 def get_target_chain():
     company_input = input("Enter the insurance company (Edelweiss, HDFC, LIC, KOTAK, StarHealth, Bajaj or 'any') ").strip().lower()
     target_chain = []
+    global company_name
+    company_name = company_input
     if company_input == "any":
         for company_key in company_rag_chains:
             target_chain.append(company_rag_chains[company_key])
@@ -57,7 +77,17 @@ def get_target_chain():
         target_chain.append(company_rag_chains[company_input])
     else:
         print("Invalid company name. Try again.")
-    return target_chain
+
+    target_policy_names = []
+    if company_input == "any":
+        for company_key in company_policy_names:
+            target_policy_names.append(company_policy_names[company_key])
+    elif company_input in company_policy_names:
+        target_policy_names.append(company_policy_names[company_input])
+    else:
+        print("Invalid company name")
+
+    return target_chain, target_policy_names
 
 def translate_text(text, src_lang, dest_lang):
     try:
@@ -103,9 +133,9 @@ print("Welcome to Insurance Q&A Chatbot")
 lang = get_user_language()
 
 while True:
-    target_chain = get_target_chain()
+    target_chain, target_policy_names = get_target_chain()
     SESSION_ID = "default_session"
-    if len(target_chain) > 0:
+    if len(target_chain) > 1:
         while True:
             question = input("\nYou: ")
             # question = str(TextBlob(question).correct()) ## corrected english 
@@ -139,27 +169,31 @@ while True:
             print(question)
 
             final_response = []
-            for target in target_chain:
-                response = target.invoke(
-                    {"input": question},
+            for i in range(len(target_chain)):
+                company_key = list(company_rag_chains.keys())[i]  # e.g., "hdfc"
+                policy_key = f"{company_key}_policy"
+
+                response = target_chain[i].invoke(
+                    {"input": question, policy_key: "\n".join(f"- {p}" for p in target_policy_names[i])},
                     config={"configurable": {"session_id": SESSION_ID}}
                 )
+
                 # response = translate_text(response, src_lang="english", dest_lang=lang)
                 final_response.append(response)
             
             print("Assistant:", response['answer'])
             print("\nWould you like to exit or ask question for a specific company? Then Type 'exit' else enter the question in selected language")
     else:
+        single_chain = target_chain[0]
+        policy_list = target_policy_names[0]
+
         while True:
             question = input("\nYou: ")
-            # question = TextBlob(question).correct() ## corrected english 
             if question.strip().lower() == "exit":
                 break
-            # question = translate_text(question, src_lang=lang, dest_lang="english")
             if is_abusive(question):
                 print("Assistant: Please be respectful. Let's keep this conversation helpful and professional.")
                 continue
-
             if is_vague(question):
                 print("It seems your question is a bit vague or lacking in context. Can you describe your question properly")
                 continue
@@ -182,11 +216,14 @@ while True:
             question = response.text.strip()
             print(question)
 
-            response = target_chain.invoke(
-                {"input": question},
+            response = single_chain.invoke(
+                {
+                    "input": question,
+                    f"{company_name}_policy": "\n".join(f"- {p}" for p in policy_list)
+                },
                 config={"configurable": {"session_id": SESSION_ID}}
             )
-            # response = translate_text(response, src_lang="english", dest_lang=lang)
+
             print("Assistant:", response['answer'])
 
         print("\nWould you like to exit or change company? Then Type 'exit' else enter the question in selected language")
