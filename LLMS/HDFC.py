@@ -94,13 +94,13 @@ conversational_rag_chain = RunnableWithMessageHistory(
 )
 
 # # CLI Interface
-print("Welcome to PDF RAG Q&A. Ask questions (type 'exit' to quit).")
-while True:
-    question = input("\nYou: ")
-    if question.lower() == "exit":
-        break
-    response = conversational_rag_chain.invoke(
-        {"input": question, "hdfc_policy": "\n".join(f"- {p}" for p in hdfc_policy)},
-        config={"configurable": {"session_id": SESSION_ID}}
-    )
-    print("Assistant:", response['answer'])
+# print("Welcome to PDF RAG Q&A. Ask questions (type 'exit' to quit).")
+# while True:
+#     question = input("\nYou: ")
+#     if question.lower() == "exit":
+#         break
+#     response = conversational_rag_chain.invoke(
+#         {"input": question, "hdfc_policy": "\n".join(f"- {p}" for p in hdfc_policy)},
+#         config={"configurable": {"session_id": SESSION_ID}}
+#     )
+#     print("Assistant:", response['answer'])
