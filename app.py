@@ -173,6 +173,8 @@ while True:
                 - Location
                 - Policy duration (if mentioned)
                 - Context (e.g., whether asking about coverage, claim approval, or payout)
+                ⚠️ If the user is asking “what is” or “tell me about” a specific policy name, instruct the RAG LLM to look up and return that exact policy's details.
+                ⚠️ Encourage the RAG LLM to **search all available policy names and return relevant matching policy names** that may cover the user’s context (age, condition, etc.)..
                 Make sure the result is a single, complete sentence or paragraph understandable by a retrieval/LLM system.
             """
 
@@ -227,6 +229,9 @@ while True:
                 - Location
                 - Policy duration (if mentioned)
                 - Context (e.g., whether asking about coverage, claim approval, or payout)
+                ⚠️ If the user is asking “what is” or “tell me about” a specific policy name, instruct the RAG LLM to look up and return that exact policy's details.
+                ⚠️ Always instruct the LLM to return the response in **JSON format**.
+                ⚠️ Encourage the RAG LLM to **search all available policy names and return relevant matching policy names** that may cover the user’s context (age, condition, etc.)..
                 Make sure the result is a single, complete sentence or paragraph understandable by a retrieval/LLM system.
             """
 
