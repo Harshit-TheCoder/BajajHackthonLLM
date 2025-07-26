@@ -66,8 +66,9 @@ history_aware_retriever = create_history_aware_retriever(llm, retriever, context
 system_prompt = (
     "You are an assistant for question-answering tasks. "
     "Use the following pieces of retrieved context to answer the question."
-    "If you don't know the answer, SAY 'Sorry, but your question is vague. These are the policies I know about , say your question with one of these policies' and DISPLAY {edelweiss_policy}."
-    "You are trained with these policies {edelweiss_policy}"
+    "If you don't know the answer, SAY 'Sorry, but I failed to find the relevant details from my database with the details you provided.' and DISPLAY {edelweiss_policy}."
+    "YOUR ARE TRAINED WITH THESE POLICIES {edelweiss_policy}"
+    "ALWAYS PRIORITIZE SEARCHING YOUR VECTOR DATABASE RATHER THAN GIVING GENERAL ANSWERS"
     "\n\n{context}. ANSWER IN JSON FORMAT ONLY."
 )
 qa_prompt = ChatPromptTemplate.from_messages([
