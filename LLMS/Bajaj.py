@@ -8,7 +8,7 @@ from langchain_groq import ChatGroq
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.document_loaders import PyPDFLoader
+from langchain_community.document_loaders import PyPDFLoader, PyMuPDFLoader
 # from langchain_chroma import Chroma
 from langchain_community.vectorstores import Chroma
 from dotenv import load_dotenv
@@ -44,13 +44,16 @@ else:
     for file in os.listdir(DOCS_FOLDER):
         if file.endswith(".pdf"):
             pdf_path = os.path.join(DOCS_FOLDER, file)
-            loader = PyPDFLoader(pdf_path)
+            loader = PyMuPDFLoader(pdf_path)
             documents.extend(loader.load())
     # Split text
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=5000, chunk_overlap=500)
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=2000, chunk_overlap=200)
+    # print(text_splitter)
     splits = text_splitter.split_documents(documents)
+    for chunk in splits:
+        print(chunk.page_content)
     vectorstore = Chroma.from_documents(documents=splits, embedding=embeddings, persist_directory=PERSIST_DIR)
-    vectorstore.persist()
+    # vectorstore.persist()
 retriever = vectorstore.as_retriever()
 
 # Create retriever chain
